@@ -56,7 +56,11 @@ def sigterm_handler(_signo, _stack_frame):
     print(f'[+] Cleaning up aliased interface...')
     os.system(f'ifconfig {IFACE}:evil down')
     print(f'[+] Interface cleanup completed')
+    quit()
+
+# SET LISTENERS
 signal.signal(signal.SIGTERM, sigterm_handler)
+signal.signal(signal.SIGINT, sigterm_handler)
 
 
 # DETERMINE TARGETS
@@ -67,6 +71,7 @@ if not targets and not target:
 if target:
     print(f'[+] Launching in SINGLE mode')
     print(f'[+] Target:\t\t{target}')
+    targetArr.append(target)
 else:
     print(f'[+] Launching in MULTI mode')
 

@@ -12,11 +12,11 @@ from time import sleep
 parser = argparse.ArgumentParser()
 
 # ADD REQUIRED ARGUMENTS
-parser.add_argument("ip_addr", help="The IPv4 address you with to spoof")
+parser.add_argument("host", help="The IPv4 address you want to intercept traffic to/from")
 parser.add_argument("iface", help="The network interface to use")
 # ADD OPTIONAL ARGUMENTS
 parser.add_argument("--timeout", help="Specify an timeout in seconds between malicious ARP queries. Default: 60 ")
-parser.add_argument("--targets", help="Used with MULTI mode to specify a target file, or specify DISCOVER to discover and target all hosts on the subnet")
+parser.add_argument("--targets", help="Used  to specify a target file, or specify DISCOVER to discover and target all hosts on the subnet (DISCOVER mode not recommended)")
 parser.add_argument("--target", help="Used with SINGLE mode to specify the IP address of a single host to poison the cache of.")
 
 # PARSE ARGUMENTS

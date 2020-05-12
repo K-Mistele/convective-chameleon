@@ -19,7 +19,7 @@ parser.add_argument("--mode", required=True, help="Specifies mode. Valid modes a
 
 # ARGUMENTS FOR MITM
 isMitmMode = "--mode" in sys.argv and "MITM" in sys.argv
-parser.add_argument("--gateway", required=isMitmMode, help="For MITM mode. The IP address of the gateway")
+parser.add_argument("--gateway", required=isMitmMode, help="For MITM mode. The IP address of the gateway or server that you wish to place yourself in the route to from the targets")
 parser.add_argument("--targeting", required=isMitmMode, help="For MITM mode. A single IP address, or a file containing newline-separated IP addresses against which to conduct a MITM attack")
 
 # ARGUMENTS FOR CAPTURE

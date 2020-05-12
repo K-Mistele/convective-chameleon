@@ -132,7 +132,7 @@ if isMitmMode:
                 spoof(GATEWAY, target) 
 
 
-            sleep(timeout)    # WAIT <timeout> SECONDS IN BETWEEN REQUESTS
+            sleep(int(timeout))    # WAIT <timeout> SECONDS IN BETWEEN REQUESTS
 
 
     except KeyboardInterrupt:

